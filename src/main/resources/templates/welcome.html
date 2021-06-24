@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div class="panel panel-default">
+			<!-- Default panel contents -->
+			<div class="panel-heading">
+				<h3>欢迎访问阿尔兹海默症认知症诊断筛查系统</h3>
+				<div></div>
+			</div>
+			<div class="panel-body">
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+							<td style="text-align: left;">
+								<a class="myQuickVisite" href="javascript:void(0)" data="exam/add?action=add"
+									tid="phy_main">
+									<span class="glyphicon glyphicon-pencil"></span>
+									<span class="h4" style="margin-left: 10px">开始新评测</span>
+								</a>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">
+								<a class="myQuickVisite" href="javascript:void(0)" data="home/main">
+									<span class="glyphicon glyphicon-search"></span>
+									<span class="h4" style="margin-left: 10px">查询评测结果</span>
+								</a>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">
+								<a class="myQuickVisite" href="javascript:void(0)" data="home/download">
+									<span class="glyphicon glyphicon-download-alt"></span>
+									<span class="h4" style="margin-left: 10px">下载评测表格</span>
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<script>
+			$(function() {
+				$('.myQuickVisite').click(function(e) {
+
+					var url = $(this).attr('data');
+					// var dataid=$(this).attr('data-id');
+					var datatext = $(this).children("span:eq(1)").text();
+					var tabid = $(this).attr('id');
+					console.log(url);
+					console.log(datatext);
+
+					// $('#container').load(url);
+					var $tabContainer = $('#container');
+					var $tabId = $tabContainer.data('tabs').find(datatext);
+
+					if ($tabId.length > 0) {
+						console.log("find:" + $tabId);
+						$tabContainer.data('tabs').showTab(datatext);
+					} else {
+						console.log("no find");
+						$("#container").data("tabs").addTab({
+							id: datatext,
+							text: datatext,
+							closeable: true,
+							url: url
+						});
+					}
+				});
+			});
+		</script>
+
+	</body>
+</html>

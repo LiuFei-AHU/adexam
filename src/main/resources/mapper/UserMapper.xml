@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ahu.ad.exam.mapper.UserMapper">
+    <select id="checkUsernameAndPassword" resultType="User">
+        SELECT ID,USERNAME,STATUS FROM t_user WHERE USERNAME=#{username} AND PASSWORD=PASSWORD(#{password})
+    </select>
+
+    <select id="getUserWithRole" resultType="User">
+        SELECT
+            ID,
+            USERNAME,
+            STATUS,
+            (
+            SELECT
+            GROUP_CONCAT( b.rolecode )
+            FROM
+            t_user_role a
+            LEFT JOIN t_role b ON a.role_id = b.id
+            WHERE
+            user_id = t.id
+            GROUP BY
+            a.user_id
+            ) AS role
+        FROM t_user t
+          <where>
+              <if test="username != null">
+                  AND USERNAME=#{username}
+              </if>
+          </where>
+    </select>
+
+    <select id="getUserRoles" resultType="com.ahu.ad.exam.entity.Role">
+        SELECT
+            c.id,
+            c.rolecode,
+            c.rolename,
+            c.descr
+        FROM
+            t_user a
+            LEFT JOIN t_user_role b ON a.id = b.user_id
+            LEFT JOIN t_role c ON c.id = b.role_id
+        <where>
+            a.username = #{username}
+        </where>
+    </select>
+
+    <select id="getAll" resultType="Map">
+        SELECT
+            ( @rownum := @rownum + 1 ) AS id,
+            a.username,
+            c.rolename,
+            a.STATUS,
+            if( a.STATUS='1', '正常', '无效' ) AS statusDescr
+            FROM ( SELECT @rownum := 0 ) r, t_user a
+            LEFT JOIN t_user_role b ON a.id = b.user_id
+            LEFT JOIN t_role c ON c.id = b.role_id
+            LEFT JOIN t_group_user d on d.user_id=a.id
+        <where>
+            FIND_IN_SET(d.group_id,getGroupChild(#{groupId}))
+            <if test="username != '' and username != null">
+                AND a.username = #{username}
+            </if>
+            <if test="rolename != '' and rolename != null">
+                AND c.rolename = #{rolename}
+            </if>
+        </where>
+    </select>
+
+    <select id="getUserByName" resultType="com.ahu.ad.exam.vo.UserVo">
+        SELECT
+            a.id,
+            a.username,
+            c.rolecode,
+            c.rolename,
+            a.STATUS,
+            IF ( a.STATUS = '1', '正常', '无效' ) AS statusDescr,
+            d.group_id AS groupId,
+            d.is_admin AS isAdmin,
+            e.g_code AS groupCode,
+            e.g_name AS groupName,
+           (SELECT id FROM t_group where FIND_IN_SET(id,getParentGroupId(d.group_id)) and g_parent_id is null) AS rootGroupId
+            FROM
+            ( SELECT @rownum := 0 ) r,
+            t_user a
+            LEFT JOIN t_user_role b ON a.id = b.user_id
+            LEFT JOIN t_role c ON c.id = b.role_id
+            LEFT JOIN ( SELECT min( group_id ) AS group_id, user_id, is_admin FROM t_group_user GROUP BY user_id, is_admin ) d
+              ON d.user_id = a.id
+            LEFT JOIN t_group e on e.id=d.group_id
+        <where>
+            <if test="username != '' and username != null">
+                AND a.username = #{username}
+            </if>
+        </where>
+    </select>
+
+    <select id="getRoleIdByCode" parameterType="String" resultType="Long">
+        select id from t_role where rolecode=#{rolecode}
+    </select>
+
+    <update id="updateUser" parameterType="com.ahu.ad.exam.vo.UserVo">
+        update t_user
+        <set>
+            <if test="status != null and status != '' ">status=#{status},</if>
+            <if test="empcode != null and empcode != '' ">empcode=#{empcode},</if>
+            <if test="rootGroupId != null">root_group_id=#{rootGroupId},</if>
+        </set>
+        <where>
+            <if test="username != '' and username != null">
+                AND username = #{username}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateUserRole" parameterType="Long">
+        update t_user_role
+        <set>
+            <if test="roleId != null and roleId != '' ">role_id=#{roleId},</if>
+        </set>
+        <where>
+            <if test="userId != '' and userId != null">
+                AND user_id = #{userId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updatePassword" >
+        update t_user set password=PASSWORD(#{password}) where id=#{id}
+    </update>
+
+    <insert id="insertUserRole" parameterType="Long">
+        insert into t_user_role(user_id,role_id) values(#{userId},#{roleId})
+    </insert>
+
+    <insert id="insertUser" parameterType="com.ahu.ad.exam.entity.User" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user(username,status,empcode,password,root_group_id) values(#{username},#{status},#{empcode},PASSWORD(#{password}),#{rootGroupId})
+    </insert>
+
+    <select id="getUserGroupId" resultType="Long">
+        SELECT
+            min(group_id) as group_id
+        FROM
+            t_group_user
+        WHERE
+            user_id = #{userId}
+        GROUP BY user_id
+    </select>
+
+    <resultMap id="GroupTreeVoType" type="com.ahu.ad.exam.vo.GroupTreeVo">
+        <id property="id" column="id"/>
+        <result column="g_code" property="gCode"/>
+        <result column="g_name" property="gName"/>
+        <result column="g_status" property="gStatus"/>
+        <result column="g_parent_id" property="gParentId"/>
+        <result column="g_name" property="text"/>
+        <collection property="nodes" ofType="com.ahu.ad.exam.vo.GroupTreeVo" select="com.ahu.ad.exam.mapper.UserMapper.getChildGroup" column="id">
+        </collection>
+    </resultMap>
+
+    <select id="getGroupTree" resultMap="GroupTreeVoType">
+        SELECT
+            a.id,
+            a.g_code,
+            a.g_name,
+            a.g_status,
+            a.g_parent_id
+        FROM
+            t_group a
+        WHERE
+            a.id = #{groupId}
+            and a.g_status=1
+    </select>
+
+    <select id="getChildGroup" resultMap="GroupTreeVoType">
+        SELECT
+        a.id,
+        a.g_code,
+        a.g_name,
+        a.g_status,
+        a.g_parent_id
+        FROM
+        t_group a
+        WHERE
+            a.g_parent_id = #{groupId}
+            and a.g_status=1
+    </select>
+
+    <resultMap id="GroupData" type="com.ahu.ad.exam.vo.GroupVo">
+        <id property="id" column="id"/>
+        <result column="g_code" property="gCode"/>
+        <result column="g_name" property="gName"/>
+        <result column="g_status" property="gStatus"/>
+        <result column="g_parent_id" property="gParentId"/>
+        <!--<collection property="gUsers" ofType="com.ahu.ad.exam.vo.UserVo" select="com.ahu.ad.exam.mapper.UserMapper.getGroupUsersByGroupId" column="id">-->
+        <!--</collection>-->
+    </resultMap>
+
+    <select id="getGroupDataById" resultMap="GroupData">
+        SELECT
+            a.id,
+            a.g_code,
+            a.g_name,
+            a.g_status,
+            a.g_parent_id
+        FROM
+            t_group a
+        WHERE
+            a.id = #{groupId}
+            and a.g_status=1
+    </select>
+
+    <resultMap id="GroupUsers" type="com.ahu.ad.exam.vo.UserVo">
+        <id property="id" column="user_id"/>
+        <result column="group_id" property="groupId"/>
+        <result column="is_admin" property="isAdmin"/>
+        <result column="username" property="username"/>
+        <result column="status" property="status"/>
+        <result column="statusDescr" property="statusDescr"/>
+    </resultMap>
+
+    <select id="getGroupUsersByGroupId" resultMap="GroupUsers">
+        SELECT
+            a.group_id,
+            a.is_admin,
+            a.user_id,
+            b.username,
+            b.STATUS,
+            IF ( b.STATUS = '1', '正常', '无效' ) AS statusDescr
+        FROM
+            t_group_user a
+            INNER JOIN t_user b ON a.user_id = b.id
+        WHERE
+            a.group_id = #{groupId}
+    </select>
+
+    <update id="saveGroup" parameterType="com.ahu.ad.exam.entity.Group">
+        update t_group
+        <set>
+            g_parent_id=#{gParentId},
+            <if test="gStatus != null and gStatus != '' ">g_status=#{gStatus},</if>
+            <if test="gCode != null and gCode != '' ">g_code=#{gCode},</if>
+            <if test="gName != null and gName != '' ">g_name=#{gName},</if>
+        </set>
+        <where>
+             id = #{id}
+        </where>
+    </update>
+
+    <insert id="insertGroup" parameterType="com.ahu.ad.exam.entity.Group" useGeneratedKeys="true" keyProperty="id">
+        insert into t_group(g_code,g_status,g_name,g_parent_id) values(#{gCode},#{gStatus},#{gName},#{gParentId})
+    </insert>
+
+    <select id="getGroups" resultType="com.ahu.ad.exam.entity.Group">
+        SELECT
+        a.id,
+        a.g_code,
+        a.g_name,
+        a.g_status,
+        a.g_parent_id
+        FROM
+        t_group a
+        WHERE
+        a.g_status=1
+        AND FIND_IN_SET(ID,getGroupChild(#{user.groupId}))
+    </select>
+
+    <select id="getGroupParent" resultType="com.ahu.ad.exam.entity.Group">
+      SELECT
+        b.id,
+        b.g_code,
+        b.g_name,
+        b.g_status,
+        b.g_parent_id
+      FROM
+        t_group a left join t_group b on b.id=a.g_parent_id
+      WHERE
+        a.id = #{groupId}
+    </select>
+
+    <update id="delGroupUser">
+        delete from t_group_user where group_id=#{groupId} and user_id=#{userId}
+    </update>
+
+    <update id="updateGroupUser" parameterType="com.ahu.ad.exam.vo.UserVo">
+        update t_group_user set is_admin=#{isAdmin} where group_id=#{groupId} and user_id=#{id}
+    </update>
+
+    <insert id="insertGroupUser" parameterType="com.ahu.ad.exam.vo.UserVo">
+        insert into t_group_user(group_id,user_id,is_admin) values(#{groupId},#{id},#{isAdmin})
+    </insert>
+
+    <select id="getUsersExcludeGroup" resultType="com.ahu.ad.exam.vo.UserVo">
+        SELECT
+            a.id,
+            a.username,
+            a.STATUS
+        FROM
+            t_user a
+        WHERE
+            a.root_group_id = #{groupId}
+            AND NOT EXISTS (
+            SELECT
+                1
+            FROM
+                t_group_user t
+        WHERE
+            t.user_id = a.id)
+    </select>
+
+</mapper>

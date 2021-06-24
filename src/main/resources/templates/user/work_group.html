@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div class="panel-group">
+			<div class="panel panel-primary">
+				<div class="panel panel-body">
+					<div class="col-sm-3">
+						<div class="form-group">
+							<label for="input-search" class="sr-only">Search Tree:</label>
+							<input type="input" class="form-control" id="input-search" placeholder="Type to search..."
+								value="">
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" class="checkbox" id="chk-ignore-case" value="false">
+								Ignore Case
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" class="checkbox" id="chk-exact-match" value="false">
+								Exact Match
+							</label>
+						</div>
+						<button type="button" class="btn btn-primary" id="btn-add-group">添加工作组</button>
+						<!-- <button type="button" class="btn btn-primary" id="btn-del-group">删除工作组</button> -->
+						<button type="button" class="btn btn-primary" id="btn-refresh-group">刷新</button>
+					</div>
+					<div class="col-sm-4">
+						<div id="treeview-searchable" class="treeview">
+
+						</div>
+					</div>
+					<div class="col-sm-4">
+
+					</div>
+				</div>
+			</div><!-- end of panel -->
+		</div>
+
+
+		<script type="text/javascript">
+			//显示工作组信息页面
+			function showGroupPage(action,group) {
+				$.ajax({
+					url: '/ad/user/group/page/'+action+'/'+group.id,
+					type: "get",
+					contentType: "text/html",
+					success: function(data) {
+						layer.open({
+							type: 1,
+							title: "",
+							content: data,
+							cancel: function(){
+								refreshTree();
+							}
+						});
+					},
+					error: function(data) {
+						console.log(data);
+					}
+				});
+			}
+			//构建树
+			function buildTree() {
+				var tree = {};
+				$.ajax({
+					url: "/ad/user/tree",
+					type: "get",
+					contentType: "application/json",
+					dataType: "json",
+					timeout: 30000,
+					async: false,
+					success: function(data) {
+						tree = [data];// console.log(tree);
+					},
+					error: function(data) {
+						console.log(data);
+					}
+				});
+
+				return tree;
+			}
+			//渲染树
+			function loadGroupTree(){
+				$('#treeview-searchable').treeview({
+					data: buildTree(),
+					expanded: true,
+					levels: 2,
+					showBorder: false,
+					showTags: true,
+					icon: "glyphicon glyphicon-stop",
+					color: "#6194c0",
+					backColor: "#FFFFFF",
+					onNodeSelected: function(event, data) {
+						console.log("you are choose me now :" + data.gName);
+						showGroupPage("edit",data);//点击显示信息
+					}
+				});
+			}
+			//刷新树
+			function refreshTree(){
+				$('#treeview-searchable').bootstrapTable('destroy');
+				loadGroupTree();
+			}
+			//在树中搜索
+			var search = function(e) {
+				var pattern = $('#input-search').val();
+				var options = {
+					ignoreCase: $('#chk-ignore-case').is(':checked'),
+					exactMatch: $('#chk-exact-match').is(':checked')
+				};
+				var results = $('#treeview-searchable').treeview('search', [pattern, options]);
+
+				var output = '<p>' + results.length + ' matches found</p>';
+				$.each(results, function(index, result) {
+					output += '<p>- ' + result.text + '</p>';
+				});
+				//打印搜索的结果
+				console.log(output);
+			}
+			//添加新工作组
+			var add_group = function(e){
+				var data = {"id": -1};
+				showGroupPage("add",data);
+				// var nodeId = 0;
+				// nodeId = $('#treeview-searchable').treeview(true).getSelected();
+				// console.log(nodeId);
+			}
+			//删除工作组
+			var del_group = function(e){
+				layer.msg("功能暂未开放！");
+			}
+			// $('#btn-search').on('click', search);
+			$('#input-search').on('keyup', search);
+			$('#btn-add-group').on('click', add_group);
+			$('#btn-del-group').on('click', del_group);
+			$('#btn-refresh-group').on('click', refreshTree);
+			$(function() {
+				loadGroupTree();
+			});
+		</script>
+	</body>
+</html>

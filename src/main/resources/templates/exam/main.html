@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="HandheldFriendly" content="True" />
+		<style>
+			/* 表格样式 */
+			.table>tbody>tr>td {
+				border: 0px;
+				text-align: center;
+			}
+
+			.bootstrap-table .table thead>tr>th {
+				text-align: center;
+			}
+
+			.table thead {
+				background: #ebeaea;
+			}
+		</style>
+	</head>
+	<body>
+
+		<!-- Large modal -->
+
+		<div id="myModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+			aria-labelledby="myLargeModalLabel">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+								aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="gridSystemModalLabel">添加信息</h4>
+					</div>
+					<div class="modal-body" id="myModal-content">
+
+					</div>
+					<!-- <div class="modal-footer">
+			  <button id="myModal-cancel" type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			  <button id="myModal-save" type="button" class="btn btn-primary">保存</button>
+			</div> -->
+				</div>
+			</div>
+		</div>
+
+		<div class="panel-group">
+			<div class="panel panel-primary">
+				<div class="panel panel-body">
+					<form class="form-inline">
+						<div class="form-group">
+							<label class="left20">患者编号</label>
+							<input type="text" class="form-control" id="search_hcode" name="hcode" placeholder="输入患者编号">
+							<label class="left20">患者姓名</label>
+							<input type="text" class="form-control" id="search_hname" name="hname" placeholder="输入患者姓名">
+							<button type="button" id="search_btn" style="margin-left: 20px"
+								class="btn btn-default btn-primary">查 询</button>
+							<button type="button" id="add_btn" style="margin-left: 20px"
+								class="btn btn-default btn-warning">开始新评测</button>
+						</div>
+					</form>
+				</div>
+				<div>
+					<table id='mytab' class="table table-bordered table-hover text-nowrap"></table>
+				</div>
+			</div><!-- end of panel -->
+		</div>
+		<script>
+			function loadTableData() {
+				$('#mytab').bootstrapTable({
+					url: './exam/list',
+					queryParams: {
+						"hcode": $("#search_hcode").val(),
+						"hname": $("#search_hname").val()
+					},
+					striped: true, // 是否显示行间隔色
+					uniqueId: "id",
+					pageSize: "5",
+					pagination: true, // 是否分页
+					sortable: true, // 是否启用排序
+					columns: [{
+							field: 'id',
+							title: ' ',
+							hidden: 'hidden'
+						},
+						{
+							field: 'hCode',
+							title: '编号'
+						},
+						{
+							field: 'hName',
+							title: '姓名'
+						},
+						{
+							field: 'result',
+							title: '评估结果'
+						},
+						{
+							field: 'groupName',
+							title: '工作组'
+						},
+						{
+							field: 'createDate',
+							title: '录入日期'
+						},
+						{
+							field: 'creator',
+							title: '录入人员'
+						},
+						{
+							field: 'action',
+							title: '操作',
+							width: 120,
+							align: 'center',
+							valign: 'middle',
+							formatter: actionFormatter,
+						},
+
+					]
+				});
+			}
+
+			//操作栏的格式化
+			function actionFormatter(value, row, index) {
+				var id = value;
+				var result = "";
+				result +=
+					"<a href='javascript:;' class='btn btn-xs green' onclick=\"EditViewById(this, action='view')\" title='查看'><span class='glyphicon glyphicon-search'></span></a>";
+				result +=
+					"<a href='javascript:;' class='btn btn-xs blue' onclick=\"EditViewById(this, action='edit')\" title='编辑'><span class='glyphicon glyphicon-pencil'></span></a>";
+				result +=
+					"<a href='javascript:;' class='btn btn-xs red' onclick=\"DeleteById(this)\" title='删除'><span class='glyphicon glyphicon-remove'></span></a>";
+				return result;
+			}
+			//查询按钮事件
+			$('#search_btn').click(function() {
+				// $('#mytab').bootstrapTable('refresh');
+				$('#mytab').bootstrapTable('destroy');
+				loadTableData();
+			})
+			//添加按钮事件
+			$('#add_btn').click(function() {
+				Add();
+			})
+			//模态框显示事件
+			/*
+			$('#myModal').on('show.bs.modal', function (event) {
+				console.log("mymodal show event");
+				//加载内容
+				$('#myModal-content').load('./exam/add?action=edit');
+			});
+			*/
+
+			//点击操作-查看/编辑按钮
+			function EditViewById(source, action) {
+				// console.log(source);
+				var cur_row = $(source).parent().parent();
+				var ucode = $(cur_row).find('td:eq(1)').html();
+				var uname = $(cur_row).find('td:eq(2)').html();
+				console.log(ucode);
+				if (action == undefined) {
+					action = 'view';
+				}
+				console.log(action);
+				var url = './exam/blxx?hcode=' + ucode + "&action=" + action;
+				$.ajax({
+					url: url,
+					type: "get",
+					contentType: "text/html",
+					success: function(data) {
+						layer.open({
+							type: 1,
+							title: "",
+							content: data,
+						});
+					},
+					error: function(data) {
+						console.log(data);
+					}
+				});
+				/*
+				//勿删！！
+				// var datatext = uname
+				// var tabId = uname + '_' + ucode
+				// var $tabContainer = $('#container');
+				// var $tabId = $tabContainer.data('tabs').find(tabId);
+
+				// if ($tabId.length > 0) {
+				// 	console.log("find:" + $tabId);
+				// 	$tabContainer.data('tabs').showTab(tabId);
+				// } else {
+				// 	console.log("add tab " + tabId);
+				// 	$tabContainer.data("tabs").addTab({
+				// 		id: tabId,
+				// 		text: datatext,
+				// 		closeable: true,
+				// 		url: url
+				// 	});
+				// }
+				*/
+			}
+
+			//点击添加按钮，弹出模态框
+			function Add() {
+				//弹出modal框
+				// $('#myModal').modal('show');
+
+				var url = './exam/add?action=add';
+				$.ajax({
+					url: url,
+					type: "get",
+					contentType: "text/html",
+					success: function(data) {
+						layer.open({
+							type: 1,
+							title: "",
+							content: data,
+						});
+					},
+					error: function(data) {
+						console.log(data);
+					}
+				});
+				/*
+				// 勿删！！
+				// var datatext = "开始新评测"
+				// var tabId = "开始新评测"
+				// var $tabContainer = $('#container');
+				// var $tabId = $tabContainer.data('tabs').find(tabId);
+
+				// if ($tabId.length > 0) {
+				// 	console.log("[btn] find:" + $tabId);
+				// 	$tabContainer.data('tabs').showTab(tabId);
+				// } else {
+				// 	console.log("[btn] add tab " + tabId);
+				// 	$tabContainer.data("tabs").addTab({
+				// 		id: tabId,
+				// 		text: datatext,
+				// 		closeable: true,
+				// 		url: url
+				// 	});
+				// }
+				*/
+			}
+
+			function DeleteById(e) {
+				// console.log(e);
+				//调用删除服务
+				//成功后刷新表格（或者，直接操作html，删除行？？）
+				layer.msg("功能暂未开放！");
+			}
+
+			$(function() {
+				loadTableData();
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<style>
+		/* 表格样式 */
+		.table>tbody>tr>td {
+			border: 0px;
+			text-align: center;
+		}
+		.bootstrap-table .table thead>tr>th {
+			text-align: center;
+		}
+		.table thead {
+			background: #ebeaea;
+		}
+	</style>
+</head>
+<body>
+	<!-- Large modal -->
+	
+	<div id="userManageModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+	  <div class="modal-dialog modal-lg" role="document">
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridSystemModalLabel"></h4>
+			</div>
+			<div class="modal-body" id="userManageModal-content">
+			  
+			</div>
+			<div class="modal-footer">
+			  <button id="userManageModal-save" type="button" class="btn btn-primary">保存</button>
+			</div>
+	    </div>
+	  </div>
+	</div>
+	
+	<div class="panel-group">
+		<div class="panel panel-primary">
+			<div class="panel panel-body">
+				<form class="form-inline">
+					<div class="form-group">
+						<label class="left20">用户名</label>
+						<input type="text" class="form-control" id="search_uername" name="username" placeholder="输入用户名">
+						<label class="left20">角色名</label>
+						<input type="text" class="form-control" id="search_rolename" name="rolename" placeholder="输入角色名">
+						<button type="button" id="user_search_btn" style="margin-left: 20px" class="btn btn-default btn-primary" >查 询</button>
+						<button type="button" id="user_add_btn" style="margin-left: 20px" class="btn btn-default btn-warning" >添 加</button>
+					</div>
+				</form>
+			</div>
+			<div>  
+				<table id='usertab' class="table table-bordered table-hover text-nowrap"></table>
+			</div>
+		</div><!-- end of panel -->
+	</div>
+	<script th:inline="javascript">
+		//加载用户列表
+		function loadUserTableData(){
+			$('#usertab').bootstrapTable({
+				url: './user/list',
+				queryParams: {"username":$("#search_uername").val(),"rolename":$("#search_rolename").val()},
+				striped: true, // 是否显示行间隔色
+				uniqueId: "id",
+				pageSize: "5",
+				pagination: true, // 是否分页
+				sortable: true, // 是否启用排序
+				columns: [{
+						field: 'id',
+						title: ' ',
+						hidden: 'hidden'
+					},
+					{
+						field: 'username',
+						title: '用户名'
+					},
+					{
+						field: 'rolename',
+						title: '用户角色'
+					},
+					{
+						field: 'statusDescr',
+						title: '用户状态'
+					},
+					{
+						field: 'action',
+						title: '操作',
+						width: 120,
+						align: 'center',
+						valign: 'middle',
+						formatter: userManageActionFormatter,
+					},
+			
+				]
+			});
+		}
+		//操作栏的格式化
+		function userManageActionFormatter(value, row, index) {
+			var id = value;
+			var result = "";
+			result += "<a href='javascript:;' class='btn btn-xs green' onclick=\"EditUserViewById(this, action='view')\" title='查看'><span class='glyphicon glyphicon-search'></span></a>";
+			result += "<a href='javascript:;' class='btn btn-xs blue' onclick=\"EditUserViewById(this, action='edit')\" title='编辑'><span class='glyphicon glyphicon-pencil'></span></a>";
+			result += "<a href='javascript:;' class='btn btn-xs red' onclick=\"DeleteUserById(this)\" title='删除'><span class='glyphicon glyphicon-remove'></span></a>";
+			return result;
+		}
+		//查询按钮事件
+		$('#user_search_btn').click(function(){
+			$('#usertab').bootstrapTable('destroy');
+			loadUserTableData();
+		})
+		//添加按钮事件
+		$('#user_add_btn').click(function(){
+			$.ajax({
+				url: '/ad/user/add/',
+				type: "get",
+				contentType: "text/html",
+				success: function(data) {
+					layer.open({
+						type: 1,
+						title: "",
+						content: data,
+					});
+				},
+				error: function(data) {
+					layer.msg(data);
+					console.log(data);
+				}
+			});
+		});
+		
+		//点击操作-查看/编辑按钮
+		function EditUserViewById(source,action){
+			// console.log(source);
+			var cur_row = $(source).parent().parent();
+			var username = $(cur_row).find('td:eq(1)').html();
+			var rolename = $(cur_row).find('td:eq(2)').html();
+			console.log(username);
+			if(action == undefined){
+				action='view';
+			}
+			console.log(action);
+			var url = './user/info?username='+username+"&action="+action;
+			$.ajax({
+				url: url,
+				type: "get",
+				contentType: "text/html",
+				success: function(data) {
+					layer.open({
+						type: 1,
+						title: "",
+						content: data,
+					});
+				},
+				error: function(data) {
+					console.log(data);
+				}
+			});
+			/*
+			// 以页签的形式显示 [勿删！]
+			// var datatext = username
+			// var tabId = rolename+'_'+username
+			// var $tabContainer = $('#container');
+			// var $tabId = $tabContainer.data('tabs').find(tabId);
+			
+			// if($tabId.length>0)
+			// {
+			// 	console.log("find:"+$tabId);
+			// 	$tabContainer.data('tabs').showTab(tabId);
+			// }
+			// else {
+			// 	console.log("add tab "+tabId);
+			// 	$tabContainer.data("tabs").addTab({id:tabId, text: datatext, closeable: true, url: url});
+			// }
+			*/
+		}
+		
+		function DeleteUserById(e){
+			console.log(e);
+			//调用删除服务
+			//成功后刷新表格（或者，直接操作html，删除行？？）
+			layer.msg("功能暂未开放！")
+		}
+		
+		$(function() {
+			loadUserTableData();
+		});
+		
+	</script>
+</body>
+</html>

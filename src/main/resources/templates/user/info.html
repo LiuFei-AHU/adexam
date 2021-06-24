@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+	<div th:id="${username}">
+		<div class="panel-group">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-align-justify" data-toggle="collapse" data-target="#user-basic-pannel"><b class="h4"> 用户信息</b></span>
+				</div>
+				<div class="panel-body collapse in" id="user-basic-pannel">
+					<div id="basic-pannel-content">
+						<!-- basic-pannel-content -->
+						<input hidden="hidden" th:id="${username}+'_id'" th:value="${uservo.id}"/>
+						<form role="form" class = "form-horizontal AddmodelForm">
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_username">用户名</label>
+								<div class="col-xs-8">
+									<input th:value="${uservo.username}" th:readonly="${action!='add'}" th:id="${username}+'_username'" name="t_username" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_status">用户状态</label>
+								<div class="col-xs-8">
+									<select class="form-control" th:value="${uservo.status}" th:disabled="${action=='view'}" th:id="${username}+'_status'" name="t_status">
+										<option th:selected="${uservo.status=='1'}" value="1">正常</option>
+										<option th:selected="${uservo.status=='2'}" value="2">无效</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_rolecode">用户角色</label>
+								<div class="col-xs-8">
+									<select class="form-control" th:value="${uservo.rolecode}" th:disabled="${action=='view'}" th:id="${username}+'_rolecode'" name="t_rolecode">
+										<option value=" "></option>
+										<option th:selected="${uservo.rolecode=='user'}" value="user" >普通员工</option>
+										<option th:selected="${uservo.rolecode=='admin'}" value="admin">管理员</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_rolecode">主工作组</label>
+								<div class="col-xs-8">
+									<input th:value="${uservo.groupName}" readonly="readonly" th:id="${username}+'groupName'" name="t_groupName" class="input-text form-control">
+								</div>
+							</div>
+						</form>
+						<!-- basic-pannel-content end -->
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+			  <div class="panel-body">
+				<button th:disabled="${action=='view'}" type="button" id="user_save_btn" class="btn btn-default btn-warning" onclick="save_user();"><span class="glyphicon glyphicon-floppy-save"></span> 保存</button>
+			  </div>
+			</div>
+		</div>
+	</div>
+<script th:inline="javascript">
+	
+	var action = /*[[${action}]]*/ "view";
+	
+	function save_user(){
+		var uid= /*[[${username}]]*/ "";
+		if(uid!=null && uid!=""){
+			//basic info
+			var hcode = $("#"+uid).attr("id");
+			var _hcode = $("#"+hcode+"_username").val();
+			if(!_hcode){
+				layer.msg("用户名不能为空！");
+				return;
+			}
+			var rolecode = $("#"+hcode+"_rolecode").val();
+			if(!rolecode){
+				layer.msg("用户角色不能为空！");
+				return;
+			}
+			var status = $("#"+hcode+"_status").val();
+			var hid = $("#"+hcode+"_id").val();
+			var data = {"id":hid,"username":_hcode,"rolecode":rolecode,"status":status};
+			
+			//保存
+			$.ajax({
+			    type: 'post',
+			    data: JSON.stringify(data),
+			    dataType: 'json',
+				contentType: "application/json" ,
+			    url: '/ad/user/save',
+			    error: function () {
+			        layer.msg("抱歉，保存时出现错误，请联系管理员！");
+			        return false;
+			    },
+			    complete: function (data) {
+			        console.log(data.responseText);
+					var result = JSON.parse(data.responseText)
+					if(result.success!=true){
+						var msg = result.resultMessage;
+						layer.msg(msg)
+					}else{
+						layer.msg("保存成功");
+						/*
+						//刷新页面或者关闭页面
+						// var $tabContainer = $('#container');
+						// var tabId=$tabContainer.data('tabs').getCurrentTabId();
+						// var $tabId = $tabContainer.data('tabs').find(tabId);
+						// var url = './user/info?username='+_hcode+"&action=edit";
+						// console.log("the tab name is "+tabId);
+						
+						// if($tabId.length>0){
+						// 	console.log("find:"+$tabId);
+						// 	// $tabContainer.data('tabs').remove(tabId);
+						// 	$tabContainer.data('tabs').reload({id:tabId, text: $tabId, closeable: true, url: url});
+						// }
+						*/
+					}
+			    }
+			});
+			
+			console.log("save "+JSON.stringify(data));
+		}
+	}
+	
+	function checkJson(json){
+		$.each(json,function(name,value) {
+			if(name!="id" && value==null){
+				layer.msg("请完整录入信息");
+			}
+		});
+	}
+</script>
+</body>
+</html>

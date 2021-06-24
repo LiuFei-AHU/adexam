@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div class="panel-group">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<span class="glyphicon glyphicon-align-justify" data-toggle="collapse" data-target="#change-password-pannel"><b class="h4"> 修改密码</b></span>
+		</div>
+		<div class="panel-body collapse in" id="change-password">
+			<div id="basic-pannel-content">
+				<!-- basic-pannel-content -->
+				<form role="form" class = "form-horizontal AddmodelForm" id="changePwd_form">
+					<div class="form-group">
+						<label class="col-xs-4 control-label" for="password">当前密码</label>
+						<div class="col-xs-8">
+							<input id="password" type="password" class="input-text form-control" name="password">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-xs-4 control-label" for="newPassword">新密码</label>
+						<div class="col-xs-8">
+							<input id="newPassword" type="password" class="input-text form-control" name="newPassword">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-xs-4 control-label" for="newPassword2">确认新密码</label>
+						<div class="col-xs-8">
+							<input id="newPassword2" type="password" class="input-text form-control" name="newPassword2">
+						</div>
+					</div>
+				</form>
+				<!-- basic-pannel-content end -->
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+	  <div class="panel-body">
+		<button type="submit" id="changPwd_save_btn" class="btn btn-default btn-warning"><span class="glyphicon glyphicon-floppy-save"></span> 保存</button>
+		<button type="button" id="changPwd_qiut_btn" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span> 关闭</button>
+	  </div>
+	</div>
+</div>
+
+<script th:inline="javascript">
+	var $frm =  $('form[id="changePwd_form"]');
+	//验证密码
+	$(function () {
+        $frm.bootstrapValidator({
+            message: '无效输入值',
+            feedbackIcons: {/*输入框不同状态，显示图片的样式*/
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields:{
+				password: {
+				    message: 'password is not valid',
+				    validators: {
+				        notEmpty: {
+				            message: '请输入原密码'
+				        },
+						regexp: {
+						    regexp: /^[a-zA-Z0-9_\.]+$/,
+						    message: '密码只能由由数字字母下划线和.组成'
+						}
+				    }
+				},
+                newPassword: {
+                    message: 'password is not valid',
+                    validators: {
+                        notEmpty: {
+                            message: '密码不能为空'
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 30,
+                            message: '密码长度必须在6到30之间'
+                        },
+                        regexp: {
+                            regexp: /^[a-zA-Z0-9_\.]+$/,
+                            message: '密码只能由由数字字母下划线和.组成'
+                        }
+                    }
+                },
+				newPassword2: {
+				    message: 'password is not valid',
+				    validators: {
+						notEmpty : {
+							message : '请再次输入新密码！',
+							equalTo : "#newPassword"
+						},
+				        identical: {
+							field: 'newPassword',
+							message: '新密码与确认密码不一致！'
+						}
+				    }
+				}
+            }
+        });
+	})
+    
+	$("#changPwd_save_btn").click(function(e){
+		// $("#changePwd_form").data("bootstrapValidator").validateField('newPassword');
+		var $validator = $("#changePwd_form").data("bootstrapValidator");
+		$validator.validate();
+		var flag = $validator.isValid();
+		if(flag){
+			var $oldPwd = $validator.getFieldElements("password");
+			//验证旧密码
+			// console.log($oldPwd.val());
+			$.ajax({
+				type: 'post',
+				data: JSON.stringify({"password":$oldPwd.val()}),
+				dataType: 'json',
+				contentType: "application/json",
+				url: '/ad/user/checkpwd',
+				complete: function(data) {
+					var result = JSON.parse(data.responseText)
+					if (result.success != true) {
+						layer.msg(result.resultMessage);
+					} else {
+						console.log("保存修改密码");
+						save_changed_pwd();
+					}
+				}
+			});
+		}
+	});
+	
+	function save_changed_pwd(){
+		//保存
+		$.ajax({
+			type: 'post',
+			data: JSON.stringify({"newPassword":$("#newPassword").val()}),
+			dataType: 'json',
+			contentType: "application/json",
+			url: '/ad/user/changepwd',
+			error: function() {
+				layer.msg("抱歉，保存时出现错误，请联系管理员！");
+				return false;
+			},
+			complete: function(data) {
+				var result = JSON.parse(data.responseText)
+				if (result.success != true) {
+					layer.msg(result.resultMessage);
+				} else {
+					layer.close(layer.index);
+					layer.msg("密码修改成功！",{"timeing":2});
+				}
+			}
+		});
+	}
+	
+	$("#changPwd_qiut_btn").click(function(e){
+		layer.close(layer.index);
+	});
+	
+	
+	
+</script>
+
+</body>
+</html>

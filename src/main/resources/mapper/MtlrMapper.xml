@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ahu.ad.exam.mapper.MtlrMapper">
+
+    <update id="updateMtlr" parameterType="com.ahu.ad.exam.entity.Mtlr">
+        update t_ex_mtlr
+        <set>
+            <if test="examDate != null">exam_date=#{examDate},</if>
+            <if test="totalScore != null">total_score=#{totalScore},</if>
+            <if test="examId != null">exam_id=#{examId},</if>
+            <if test="updateId != null">update_id=#{updateId},</if>
+            <if test="updateDate != null">update_date=#{updateDate},</if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <insert id="insertMtlr" parameterType="com.ahu.ad.exam.entity.Mtlr" useGeneratedKeys="true" keyProperty="id">
+        insert into t_ex_mtlr(exam_date,total_score,exam_id,create_id,create_date)
+        values(#{examDate},#{totalScore},#{examId},#{createId},#{createDate})
+    </insert>
+
+</mapper>

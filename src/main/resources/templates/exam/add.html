@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+	<div th:id="${hcode}">
+		<div class="panel-group">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-align-justify" data-toggle="collapse" data-target="#basic-pannel"><b class="h4"> 基本信息</b></span>
+				</div>
+				<div class="panel-body collapse in" id="basic-pannel">
+					<div id="basic-pannel-content">
+						<!-- basic-pannel-content -->
+						<input hidden="hidden" th:id="${hcode}+'_id'" th:value="${exam.id}"/>
+						<form role="form" class = "form-horizontal AddmodelForm">
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_code">编号</label>
+								<div class="col-xs-8">
+									<input th:value="${exam.hCode}" th:readonly="${action=='view'}" th:id="${hcode}+'_hcode'" name="t_code" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_name">姓名</label>
+								<div class="col-xs-8">
+									<input th:value="${exam.hName}" th:readonly="${action=='view'}" th:id="${hcode}+'_hname'" name="t_name" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_age">年龄</label>
+								<div class="col-xs-8">
+									<input th:value="${exam.hAge}" th:readonly="${action=='view'}" th:id="${hcode}+'_hage'" name="t_age" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_sex">性别</label>
+								<div class="col-xs-8">
+									<select class="form-control" th:value="${exam.hSex}" th:disabled="${action=='view'}" th:id="${hcode}+'_hsex'" name="t_sex">
+										<option value="F">男</option>
+										<option value="M">女</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" for="t_education">教育程度</label>
+								<div class="col-xs-8">
+									<select class="form-control" th:switch="${exam.hEdu}" th:disabled="${action=='view'}" th:id="${hcode}+'_hedu'" name="t_education">
+										<option th:case="'1'" th:selected="selected" value="1">小学</option>
+										<option th:case="'2'" th:selected="selected" value="2">初中</option>
+										<option th:case="'3'" th:selected="selected" value="3">高中</option>
+									</select>
+								</div>
+							</div>
+						</form>
+						<!-- basic-pannel-content end -->
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-align-justify" data-toggle="collapse" data-target="#mtlr-pannel"><b class="h4"> 蒙特利尔认知评估</b></span>
+				</div>
+				<div class="panel-body collapse in" id="mtlr-pannel">
+					<div id="mtlr-pannel-content">
+						<!--      mtlr-pannel-content  -->
+						<input hidden="hidden" th:id="${hcode}+'_mtlr_id'" th:value="${mtlr.id}"/>
+						<form role="form" class = "form-horizontal AddmodelForm">
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" >评估日期</label>
+								<div class="col-xs-8">
+									<div class='input-group date' th:id="${hcode}+'_eval_date_dp'" data-date-format="yyyy/mm/dd">
+										<input th:value="${mtlr.examDate}" th:readonly="${action=='view'}" th:id="${hcode}+'_eval_date'" name="eval_date" class="input-text form-control">
+										<span class="input-group-addon">
+											<span class="glyphicon glyphicon-calendar"></span>
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-4 control-label" >评估分数</label>
+								<div class="col-xs-8">
+									<input th:value="${mtlr.totalScore}" th:readonly="${action=='view'}" th:id="${hcode}+'_total_score'" name="total_score" class="input-text form-control">
+								</div>
+							</div>
+						</form>
+						<!--      mtlr-pannel-content  end -->
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<span class="glyphicon glyphicon-align-justify" data-toggle="collapse" data-target="#xyjc-pannel"><b class="h4"> 患者血液检测</b></span>
+				</div>
+				<div class="panel-body collapse in" id="xyjc-pannel">
+					<div id="xyjc-pannel-content">
+						<!--      xyjc-pannel-content  -->
+						<input hidden="hidden" th:id="${hcode}+'_blood_id'" th:value="${blood.id}"/>
+						<form role="form" class = "form-horizontal AddmodelForm">
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label" >高敏C反应蛋白（hsCRP）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.hscrp}" th:readonly="${action=='view'}" th:id="${hcode}+'_hscrp'" name="hscrp" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">肌酐（53-115μmol/L）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.creatinine}" th:readonly="${action=='view'}" th:id="${hcode}+'_creatinine'" name="creatinine" class="input-text form-control" >
+								</div>
+							</div>
+						
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">胆固醇（3.5-6.5 mmol/L）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.cholesterol}" th:readonly="${action=='view'}" th:id="${hcode}+'_cholesterol'" name="cholesterol" class="input-text form-control">
+								</div>
+							</div>
+						
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">甘油三酯（0.6-1.8 mmol/L）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.triglyceride}" th:readonly="${action=='view'}" th:id="${hcode}+'_triglyceride'" name="triglyceride" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">随机血糖（4.0-5.9 mmol/L）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.bloodGlucose}" th:readonly="${action=='view'}" th:id="${hcode}+'_bloodGlucose'" name="bloodGlucose" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">BMI（18.5-30）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.bmi}" th:readonly="${action=='view'}" th:id="${hcode}+'_bmi'" name="bmi" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">脉搏（次/min）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.pulse}" th:readonly="${action=='view'}" th:id="${hcode}+'_pulse'" name="pulse" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">收缩压（mmHg）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.systolicBp}" th:readonly="${action=='view'}" th:id="${hcode}+'_systolicBp'" name="systolicBp" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">舒张压（mmHg）</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.diastolicBp}" th:readonly="${action=='view'}" th:id="${hcode}+'_diastolicBp'" name="diastolicBp" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">糖尿病</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.diabetes}" th:readonly="${action=='view'}" th:id="${hcode}+'_diabetes'" name="diabetes" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">心肌梗塞</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.myocardialInfarction}" th:readonly="${action=='view'}" th:id="${hcode}+'_myocardialInfarction'" name="myocardialInfarction" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">心绞痛</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.anginaPectoris}" th:readonly="${action=='view'}" th:id="${hcode}+'_anginaPectoris'" name="anginaPectoris" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">中风</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.stroke}" th:readonly="${action=='view'}" th:id="${hcode}+'_stroke'" name="stroke" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-6">
+								<label class="col-xs-6 control-label">吸烟</label>
+								<div class="col-xs-6">
+									<input th:value="${blood.smoker}" th:readonly="${action=='view'}" th:id="${hcode}+'_smoker'" name="smoker" class="input-text form-control">
+								</div>
+							</div>
+							<div class="form-group col-xs-7">
+								<label class="col-xs-5 control-label">主观健康状况</label>
+								<div class="col-xs-7">
+									<label class="radio-inline"><input type="radio" th:checked="${blood.subjectiveHealthStatus=='1'}" th:disabled="${action=='view'}" name="zgjkzk" value="1">差</label>
+									<label class="radio-inline"><input type="radio" th:checked="${blood.subjectiveHealthStatus=='2'}" th:disabled="${action=='view'}" name="zgjkzk" value="2">不太好</label>
+									<label class="radio-inline"><input type="radio" th:checked="${blood.subjectiveHealthStatus=='3'}" th:disabled="${action=='view'}" name="zgjkzk" value="3">好</label>
+									<label class="radio-inline"><input type="radio" th:checked="${blood.subjectiveHealthStatus=='4'}" th:disabled="${action=='view'}" name="zgjkzk" value="4">很好</label>
+								</div>
+							</div>
+						</form>
+						<!--      xyjc-pannel-content  end -->
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+			  <div class="panel-body">
+				<button th:disabled="${action=='view'}" type="button" id="save_btn" class="btn btn-default btn-warning" onclick="save_exam();"><span class="glyphicon glyphicon-floppy-save"></span> 保存</button>
+				<button th:disabled="${action=='view'}" type="button" id="upload_btn" style="margin-left: 20px;" class="btn btn-default btn-info" ><span class="glyphicon glyphicon-upload"></span> 上传附件</button>
+			  </div>
+			</div>
+		</div>
+	</div>
+<script th:inline="javascript">
+	
+	$(function () {
+		var uid= /*[[${hcode}]]*/ "";
+		if(uid!=null && uid!=""){
+			var hcode = $("#"+uid).attr("id");
+			var examdate = $("#"+hcode+"_eval_date").val();
+			var $dp = $("#"+hcode+"_eval_date_dp");
+			if($("#"+hcode+"_eval_date").attr("readonly")=="readonly"){
+				console.log($("#"+hcode+"_eval_date").attr("readonly"));
+				//$dp.children("span[class=input-group-addon]").remove();
+				$dp.datetimepicker('remove');
+			}else{
+				$dp.datetimepicker({
+						locale: "zh-cn",
+						defaultDate: examdate,
+						minDate: '2020/01/01',
+						language: 'zh-CN',//显示中文
+						minView: "month",//设置只显示到月份
+						autoclose: true,//选中自动关闭
+						todayBtn: true//显示今日按钮
+					});
+			}
+			//日期格式化
+			$("#"+hcode+"_eval_date").val(new Date(examdate).Format("yyyy/MM/dd"));
+		}
+	});
+	
+	function save_exam(){
+		var uid= /*[[${hcode}]]*/ "";
+		if(uid!=null && uid!=""){
+			//basic info
+			var hcode = $("#"+uid).attr("id");
+			var hname = $("#"+hcode+"_hname").val();
+			if(!hname){
+				layer.msg("请输入患者姓名")
+				return
+			}
+			var hsex = $("#"+hcode+"_hsex").val();
+			var hage = $("#"+hcode+"_hage").val();
+			var hedu = $("#"+hcode+"_hedu").val();
+			var hid = $("#"+hcode+"_id").val();
+			var basic = {"id":hid,"hCode":hcode,"hName":hname,"hSex":hsex,"hAge":hage,"hEdu":hedu};
+			//mtlr info
+			var examdate = $("#"+hcode+"_eval_date").val();
+			var total_score = $("#"+hcode+"_total_score").val();
+			var mid = $("#"+hcode+"_mtlr_id").val();
+			var mtlr = {"id":mid,"examDate":examdate,"totalScore":total_score};
+			//xyjc info
+			var examDate = $("#"+hcode+"_"+"eval_date").val();
+			var hscrp = $("#"+hcode+"_"+"hscrp").val();
+			var creatinine = $("#"+hcode+"_"+"creatinine").val();
+			var cholesterol = $("#"+hcode+"_"+"cholesterol").val();
+			var triglyceride = $("#"+hcode+"_"+"triglyceride").val();
+			var bloodGlucose = $("#"+hcode+"_"+"bloodGlucose").val();
+			var bmi = $("#"+hcode+"_"+"bmi").val();
+			var pulse = $("#"+hcode+"_"+"pulse").val();
+			var systolicBp = $("#"+hcode+"_"+"systolicBp").val();
+			var diastolicBp = $("#"+hcode+"_"+"diastolicBp").val();
+			var diabetes = $("#"+hcode+"_"+"diabetes").val();
+			var myocardialInfarction = $("#"+hcode+"_"+"myocardialInfarction").val();
+			var anginaPectoris = $("#"+hcode+"_"+"anginaPectoris").val();
+			var stroke = $("#"+hcode+"_"+"stroke").val();
+			var smoker = $("#"+hcode+"_"+"smoker").val();
+			var subjectiveHealthStatus = $("#xyjc-pannel-content input:radio[name=zgjkzk]:checked").val();
+			var bid = $("#"+hcode+"_blood_id").val();
+			var xyjc = {
+				"id":bid,
+				"examDate":examDate,
+				"hscrp":hscrp,
+				"creatinine":creatinine,
+				"cholesterol":cholesterol,
+				"triglyceride":triglyceride,
+				"bloodGlucose":bloodGlucose,
+				"bmi":bmi,
+				"pulse":pulse,
+				"systolicBp":systolicBp,
+				"diastolicBp":diastolicBp,
+				"diabetes":diabetes,
+				"myocardialInfarction":myocardialInfarction,
+				"anginaPectoris":anginaPectoris,
+				"stroke":stroke,
+				"smoker":smoker,
+				"subjectiveHealthStatus":subjectiveHealthStatus
+			};
+			//保存
+			var data = {
+					"examine":basic,
+					"mtlr":mtlr,
+					"blood":xyjc
+				};
+			$.ajax({
+			    type: 'post',
+			    data: JSON.stringify(data),
+			    dataType: 'json',
+				contentType: "application/json" ,
+			    url: '/ad/exam/save',
+			    error: function () {
+			        layer.msg("抱歉，保存时出现错误，请联系管理员！");
+			        return false;
+			    },
+			    complete: function (data) {
+			        console.log(data.responseText);
+					var result = JSON.parse(data.responseText)
+					if(result.success!=true){
+						var msg = result.resultMessage;
+						layer.msg(msg)
+					}else{
+						layer.msg("保存成功")
+					}
+			    }
+			});
+			
+			console.log("save "+JSON.stringify(data));
+			// console.log("save "+JSON.stringify(basic)+" "+JSON.stringify(mtlr)+" "+JSON.stringify(xyjc));
+		}
+	}
+	
+	// $(function () {
+	// 	// var hcode = $("#hide_hcode").html();
+	// 	// $('#basic-pannel-content').load('./exam/basic?hcode='+hcode);
+	// 	// $('#mtlr-pannel-content').load('./exam/mtlr?hcode='+hcode);
+	// 	// $('#xyjc-pannel-content').load('./exam/xyjc?hcode='+hcode);
+		
+	// 	//页面显示样式
+	// 	// $("#save_btn").click(function(){
+	// 	// 	console.log("save "+hcode)
+	// 	// });
+	// });
+	
+</script>
+</body>
+</html>

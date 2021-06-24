@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div>
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<span class="glyphicon glyphicon-align-justify" data-toggle="collapse"
+							data-target="#group-basic-pannel"><b class="h4"> 工作组信息</b></span>
+					</div>
+					<div class="panel-body collapse in" id="group-basic-pannel">
+						<div id="basic-pannel-content">
+							<!-- basic-pannel-content -->
+							<input hidden="hidden" id="gId" th:value="${group.id}" />
+							<!-- <input hidden="hidden" id="gParentId" th:value="${group.gParentId}" /> -->
+							<form role="form" class="form-horizontal AddmodelForm">
+								<div class="form-group col-xs-6">
+									<label class="col-xs-4 control-label" for="t_gCode">工作组代码</label>
+									<div class="col-xs-8">
+										<input th:value="${group.gCode}" id="t_gCode" name="t_gCode"
+											class="input-text form-control">
+									</div>
+								</div>
+								<div class="form-group col-xs-6">
+									<label class="col-xs-4 control-label" for="t_gName">工作组名称</label>
+									<div class="col-xs-8">
+										<input th:value="${group.gName}" id="t_gName" name="t_gName"
+											class="input-text form-control">
+									</div>
+								</div>
+								<div class="form-group col-xs-6">
+									<label class="col-xs-4 control-label" for="t_gStatus">工作组状态</label>
+									<div class="col-xs-8">
+										<select class="form-control" th:value="${group.gStatus}" id="t_gStatus"
+											name="t_gStatus">
+											<option th:selected="${group.gStatus=='1'}" value="1">正常</option>
+											<option th:selected="${group.gStatus=='2'}" value="2">无效</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group col-xs-6">
+									<label class="col-xs-4 control-label" for="gParentId">上级工作组</label>
+									<div class="col-xs-8">
+										<select th:readonly="${action}!='add'" class="form-control" th:value="${group.gParentId}" id="gParentId"
+											name="gParentId">
+											<!-- <option th:selected="${group.gParentId==null}" value="">无</option> -->
+											<th:block th:if="${not #lists.isEmpty(groups)}">
+												<option th:each="groupItem:${groups}" th:value="${groupItem.id}"
+													th:text="${groupItem.gName}"
+													th:selected="${group.gParentId==groupItem.id}"></option>
+											 </th:block>
+										</select>
+									</div>
+								</div>
+							</form>
+							<!-- basic-pannel-content end -->
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<span class="glyphicon glyphicon-align-justify" data-toggle="collapse"
+							data-target="#group-user-pannel"><b class="h4"> 工作组用户</b></span>
+					</div>
+					<div class="panel-body collapse in" id="group-user-pannel">
+						<div id="group-user-pannel-content">
+							<!-- <button th:each="groupUser:${group.gUsers}" type="button" class="btn btn-default btn-sm">
+							  <span th:if="${groupUser.isAdmin=='1'}" class="glyphicon glyphicon-star" aria-hidden="true"></span> <b th:text="${groupUser.username}"></b>
+							</button> -->
+							<table id='groupUserTab' class="table table-bordered table-hover text-nowrap"></table>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<button type="button" id="group_save_btn" class="btn btn-default btn-warning"
+							onclick="save_group();"><span class="glyphicon glyphicon-floppy-save"></span> 保存</button>
+						<button type="button" id="group_quit_btn" class="btn btn-primary"
+							onclick="quit_group();"><span class="glyphicon glyphicon-remove"></span> 关闭</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			//退出工作组页面
+			function quit_group(){
+				// layer.close(layer.index);
+				layer.closeAll('page');
+			}
+			//保存工作组
+			function save_group() {
+				//basic info
+				var gid = $("#gId").val();
+				var gCode = $("#t_gCode").val();
+				if (!gCode) {
+					layer.msg("工作组代码不能为空！");
+					return;
+				}
+				var gName = $("#t_gName").val();
+				if (!gName) {
+					layer.msg("工作组名称不能为空！");
+					return;
+				}
+				var gParentId = $("#gParentId").val();
+				if($("#gParentId").children().length>0 && !$("#gParentId").val()){
+					layer.msg("请选择上级工作组！");
+					return;
+				}
+				var gStatus = $("#t_gStatus").val();
+				var gUsers = [];
+				$("#groupUserTab tbody tr").each(function() {
+					var uniqueid = $(this).attr("data-uniqueid");
+					if(uniqueid != undefined && uniqueid != null && uniqueid != "null"){
+						gUsers.push({
+							"id": $(this).attr("data-uniqueid"),
+							"groupId": gid,
+							"isAdmin": $(this).find("input").attr("checked") ? 1 : 2,
+						});
+					}
+				});
+				var data = {
+					"id": gid,
+					"gCode": gCode,
+					"gName": gName,
+					"gStatus": gStatus,
+					"gParentId": gParentId,
+					"gUsers": gUsers
+				};
+				console.log(JSON.stringify(data));
+
+				//保存
+				$.ajax({
+					type: 'post',
+					data: JSON.stringify(data),
+					dataType: 'json',
+					contentType: "application/json",
+					url: '/ad/user/group/save',
+					error: function() {
+						layer.msg("抱歉，保存时出现错误，请联系管理员！");
+						return false;
+					},
+					complete: function(data) {
+						console.log(data.responseText);
+						var result = JSON.parse(data.responseText)
+						if (result.success != true) {
+							layer.msg(result.resultMessage);
+						} else {
+							//将id复制到页面
+							$("#gId").attr("value",result.data.id);
+							console.log($("#gId").val());
+							refreshGroupUserTableData();
+							layer.msg("工作组保存成功");
+						}
+					}
+				});
+
+				console.log("save " + JSON.stringify(data));
+			}
+			//加载工作组用户表格
+			function loadGroupUserTableData() {
+				var groupId = $("#gId").attr("value");
+				console.log("loadGroupUserTableData:"+groupId);
+				if(groupId == undefined || groupId ===""){
+					groupId = null;
+				}
+				$('#groupUserTab').bootstrapTable({
+					url: '/ad/user/group/users',
+					queryParams: {
+						"groupId": groupId
+					},
+					striped: true, // 是否显示行间隔色
+					uniqueId: "id",
+					pageSize: "100",
+					pagination: false, // 是否分页
+					sortable: true, // 是否启用排序
+					columns: [{
+							field: 'id',
+							title: ' ',
+							hidden: 'hidden',
+							visible: false,
+						},
+						{
+							field: 'username',
+							title: '用户名'
+						},
+						{
+							field: 'statusDescr',
+							title: '用户状态'
+						},
+						{
+							field: 'isAdmin',
+							title: '是否管理员',
+							align: 'center',
+							valign: 'middle',
+							formatter: adminCheckFormatter,
+						},
+						{
+							field: 'action',
+							title: '操作',
+							width: 120,
+							align: 'center',
+							valign: 'middle',
+							formatter: groupActionFormatter,
+						},
+
+					]
+				});
+			}
+			//操作栏的格式化
+			function groupActionFormatter(value, row, index) {
+				var id = value;
+				var result = "";
+				result +=
+					"<a href='javascript:;' class='btn btn-xs green' onclick=\"GroupUserViewById(this,action='add')\" title='添加'><span class='glyphicon glyphicon-plus'></span></a>";
+				result +=
+					"<a href='javascript:;' class='btn btn-xs red' onclick=\"GroupUserViewById(this,action='del')\" title='删除'><span class='glyphicon glyphicon-remove'></span></a>";
+				return result;
+			}
+			//管理员勾选框格式化
+			function adminCheckFormatter(value, row, index) {
+				var result = "";
+				if (value == '1') {
+					result = "<input onclick='checkAdmin(this);' type='checkbox' checked='checked'>";
+				} else {
+					result = "<input onclick='checkAdmin(this);' type='checkbox' >";
+				}
+				return result;
+			}
+			//移出用户
+			function delGroupUser(gid,userid){
+				if(userid==undefined || userid==null || userid=="null"){
+					console.log(userid);
+					return;
+				}
+				$.ajax({
+					type: 'delete',
+					contentType: "application/json",
+					url: '/ad/user/group/users/del/' + gid + "/" + userid,
+					error: function() {
+						layer.msg("抱歉，保存时出现错误，请联系管理员！");
+						return false;
+					},
+					complete: function(data) {
+						var result = JSON.parse(data.responseText)
+						if (result.success != true) {
+							layer.msg(result.resultMessage);
+						} else {
+							//刷新用户表格
+							// $('#groupUserTab').bootstrapTable('remove', {
+							// 	filed: 'username',
+							// 	value: [username]
+							// });
+							refreshGroupUserTableData();
+							layer.msg("用户已移出当前工作组");
+						}
+					}
+				});
+			}
+			//发送数据到后台
+			function sendAddedUserData(gid,userid){
+				if(userid==""){
+					return;
+				}
+				$.ajax({
+					type: 'post',
+					contentType: "application/json",
+					url: '/ad/user/group/users/add/' + gid + "/" + userid,
+					error: function() {
+						layer.msg("抱歉，保存时出现错误，请联系管理员！");
+						return false;
+					},
+					complete: function(data) {
+						var result = JSON.parse(data.responseText)
+						if (result.success != true) {
+							layer.msg(result.resultMessage);
+						} else {
+							refreshGroupUserTableData();
+							layer.msg("用户已添加到当前工作组");
+						}
+					}
+				});
+			}
+			//添加工作组用户
+			function addGroupUser(gid){
+				var userid = "";
+				//显示添加用户的页面
+				$.ajax({
+					url: '/ad/user/group/users/'+gid,
+					type: "get",
+					contentType: "text/html",
+					success: function(data) {
+						layer.open({
+							type: 1,
+							title: "添加工作组用户",
+							btn: ['确定'],
+							btnAlign: 'l',
+							content: data,
+							btn1: function(index, layero){
+								var rows = $(layero).find("#groupUserAddTab tbody tr");
+								$(rows).each(function(){
+									// console.log($(this).children().first().html());
+									if($(this).children().first().find("input").attr("checked")=="checked"){
+										var uid = $(this).attr("data-uniqueid");
+										userid = userid+uid+",";
+									}
+								});
+								layer.close(index);
+								// console.log(userid);
+								sendAddedUserData(gid,userid);
+							}
+						});
+					},
+					error: function(data) {
+						console.log(data);
+					}
+				});
+			}
+			//操作工作组用户
+			function GroupUserViewById(obj, action) {
+				var gid = $("#gId").val();
+				var row = $(obj).parents("tr");
+				var userid = $(row).attr("data-uniqueid");
+				var username = $(row).find("td").first().html();
+				// console.log(gid+" "+userid+" "+username);
+				if (action == 'add') {
+					addGroupUser(gid);
+				} else {
+					delGroupUser(gid,userid);
+				}
+			}
+			//勾选管理员
+			function checkAdmin(obj) {
+				if ($(obj).attr("checked") == undefined) {
+					$(obj).attr("checked", "checked");
+				} else {
+					$(obj).removeAttr("checked");
+				}
+			}
+			function refreshGroupUserTableData(){
+				$("#groupUserTab").bootstrapTable('destroy');
+				loadGroupUserTableData();
+			}
+			//加载用户列表
+			$(function() {
+				loadGroupUserTableData();
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div>
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-body collapse in" id="group-user-add-pannel">
+						<div id="group-user-add-pannel-content">
+							<!-- basic-pannel-content -->
+							<table id="groupUserAddTab" class="table table-bordered table-hover text-nowrap table-striped">
+								<thead>
+									<tr>
+										<th style="text-align: center; vertical-align: middle; " data-field="checkbox">
+											<div class="th-inner "> </div>
+											<div class="fht-cell"></div>
+										</th>
+										<th style="" data-field="username">
+											<div class="th-inner ">用户名</div>
+											<div class="fht-cell"></div>
+										</th>
+										<th style="" data-field="status">
+											<div class="th-inner ">用户状态</div>
+											<div class="fht-cell"></div>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="userItem:${users}" th:data-uniqueid="${userItem.id}">
+										<td style="text-align: center; vertical-align: middle; ">
+											<input onclick="checkUser(this);" type="checkbox">
+										</td>
+										<td th:text="${userItem.username}"></td>
+										<td th:text="${userItem.status}"></td>
+									</tr>
+								</tbody>
+							</table>
+							<!-- basic-pannel-content end -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			function checkUser(obj) {
+				if ($(obj).attr("checked") == undefined) {
+					$(obj).attr("checked", "checked");
+				} else {
+					$(obj).removeAttr("checked");
+				}
+			}
+		</script>
+	</body>
+</html>

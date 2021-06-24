@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+	<div class="panel panel-default">
+	  <div class="panel-body">
+		<button th:disabled="${action=='view'}" type="button" id="save_btn" class="btn btn-default btn-warning" ><span class="glyphicon glyphicon-floppy-save"></span> 保存</button>
+		<button th:disabled="${action=='view'}" type="button" id="upload_btn" style="margin-left: 20px;" class="btn btn-default btn-info" ><span class="glyphicon glyphicon-upload"></span> 上传附件</button>
+	  </div>
+	</div>
+</body>
+</html>

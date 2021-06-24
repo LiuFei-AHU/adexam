@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ahu.ad.exam.mapper.ExamMapper">
+    <select id="getAllExamine" resultType="Map">
+        SELECT
+            (@rownum := @rownum+1) AS id,
+            A.h_code,
+            A.h_name,
+            A.h_age,
+            A.h_sex,
+            A.h_edu,
+            DATE_FORMAT(A.create_date,'%Y/%m/%d') AS create_date,
+            B.username AS creator,
+            A.result,
+            C.g_name AS groupName
+        FROM (SELECT @rownum:=0) r, t_examine A
+        LEFT JOIN t_user B ON A.create_id = B.ID
+        LEFT JOIN t_group C ON C.id=a.group_id
+        <where>
+            <if test="hcode != '' and hcode != null">
+                AND A.h_code =#{hcode}
+            </if>
+            <if test="hname != '' and hname != null">
+                AND A.h_name =#{hname}
+            </if>
+            <if test="user != null and user.groupId != null">
+                AND A.group_id =#{user.groupId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllExamineOfAdmin" resultType="Map">
+        SELECT
+        (@rownum := @rownum+1) AS id,
+        A.h_code,
+        A.h_name,
+        A.h_age,
+        A.h_sex,
+        A.h_edu,
+        DATE_FORMAT(A.create_date,'%Y/%m/%d') AS create_date,
+        B.username AS creator,
+        A.result,
+        C.g_name AS groupName
+        FROM (SELECT @rownum:=0) r, t_examine A
+        LEFT JOIN t_user B ON A.create_id = B.ID
+        LEFT JOIN t_group C ON C.id=A.group_id
+        <where>
+            <if test="hcode != '' and hcode != null">
+                AND A.h_code =#{hcode}
+            </if>
+            <if test="hname != '' and hname != null">
+                AND A.h_name =#{hname}
+            </if>
+            <if test="user != null and user.groupId != null">
+                AND FIND_IN_SET(A.group_id,getGroupChild(#{user.groupId}));
+            </if>
+        </where>
+    </select>
+
+    <select id="getIdByCode" resultType="Long">
+        SELECT id FROM t_examine
+        <where>
+            <if test="hcode != '' and hcode != null">
+                h_code =#{hcode}
+            </if>
+        </where>
+    </select>
+
+    <select id="getLastCode" resultType="String">
+        SELECT MAX(h_code) from t_examine
+    </select>
+
+    <select id="getBasicDataByCode" resultType="com.ahu.ad.exam.vo.ExamineVo">
+        SELECT
+        A.id,
+        A.h_code,
+        A.h_name,
+        A.h_age,
+        A.h_sex,
+        A.h_edu,
+        DATE_FORMAT(A.create_date,'%Y/%m/%d') AS create_date,
+        A.result
+        FROM t_examine A
+        <where>
+            <if test="hcode != '' and hcode != null">
+                AND A.h_code =#{hcode}
+            </if>
+        </where>
+    </select>
+
+    <select id="getMtlrDataByCode" resultType="com.ahu.ad.exam.entity.Mtlr">
+        SELECT
+            A.exam_date,
+            A.total_score,
+            A.id
+        FROM t_ex_mtlr A
+        LEFT JOIN t_examine B ON B.ID = A.exam_id
+        <where>
+            <if test="hcode != '' and hcode != null">
+                B.h_code=#{hcode}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="getBloodDataByCode" resultType="com.ahu.ad.exam.entity.Blood">
+        SELECT
+            A.id,
+            A.Subjective_health_status,
+            A.angina_pectoris,
+            A.blood_glucose,
+            A.bmi,
+            A.cholesterol,
+            A.cholesterol,
+            A.create_date,
+            A.create_id,
+            A.creatinine,
+            A.descr,
+            A.diabetes,
+            A.diastolic_bp,
+            A.exam_date,
+            A.exam_id,
+            A.hscrp,
+            A.myocardial_infarction,
+            A.pulse,
+            A.stroke,
+            A.smoker,
+            A.systolic_bp,
+            A.triglyceride,
+            A.update_date,
+            A.update_id
+        FROM t_ex_blood A
+        LEFT JOIN t_examine B ON B.id = A.exam_id
+        <where>
+            <if test="hcode != '' and hcode != null">
+                B.h_code=#{hcode}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateExamine" parameterType="com.ahu.ad.exam.entity.Examine">
+        update t_examine
+        <set>
+            <if test="hCode != null">h_code=#{hCode},</if>
+            <if test="hName != null">h_name=#{hName},</if>
+            <if test="hSex != null">h_sex=#{hSex},</if>
+            <if test="hAge != null">h_age=#{hAge},</if>
+            <if test="hEdu != null">h_edu=#{hEdu},</if>
+            <if test="result != null">result=#{result},</if>
+            <if test="updateId != null">update_id=#{updateId},</if>
+            <if test="updateDate != null">update_date=#{updateDate},</if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <insert id="insertExamine" parameterType="com.ahu.ad.exam.entity.Examine" useGeneratedKeys="true" keyProperty="id">
+        insert into t_examine(h_code,h_name,h_age,h_sex,h_edu,result,create_date,create_id,group_id)
+        values(#{hCode},#{hName},#{hAge},#{hSex},#{hEdu},#{result},#{createDate},#{createId},#{groupId})
+    </insert>
+
+</mapper>

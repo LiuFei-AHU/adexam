@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ahu.ad.exam.mapper.BloodMapper">
+    <update id="updateBlood" parameterType="com.ahu.ad.exam.entity.Blood">
+        update t_ex_blood
+        <set>
+            <if test="examDate != null">exam_date=#{examDate},</if>
+            <if test="examId != null">exam_id=#{examId},</if>
+            <if test="hscrp != null">hscrp=#{hscrp},</if>
+            <if test="creatinine != null">creatinine=#{creatinine},</if>
+            <if test="cholesterol != null">cholesterol=#{cholesterol},</if>
+            <if test="triglyceride != null">triglyceride=#{triglyceride},</if>
+            <if test="bloodGlucose != null">blood_glucose=#{bloodGlucose},</if>
+            <if test="bmi != null">bmi=#{bmi},</if>
+            <if test="pulse != null">pulse=#{pulse},</if>
+            <if test="systolicBp != null">systolic_bp=#{systolicBp},</if>
+            <if test="diastolicBp != null">diastolic_bp=#{diastolicBp},</if>
+            <if test="diabetes != null">diabetes=#{diabetes},</if>
+            <if test="myocardialInfarction != null">myocardial_infarction=#{myocardialInfarction},</if>
+            <if test="anginaPectoris != null">angina_pectoris=#{anginaPectoris},</if>
+            <if test="stroke != null">stroke=#{stroke},</if>
+            <if test="smoker != null">smoker=#{smoker},</if>
+            <if test="subjectiveHealthStatus != null">subjective_health_status=#{subjectiveHealthStatus},</if>
+            <if test="updateId != null">update_id=#{updateId},</if>
+            <if test="updateDate != null">update_date=#{updateDate},</if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <insert id="insertBlood" parameterType="com.ahu.ad.exam.entity.Blood" useGeneratedKeys="true" keyProperty="id">
+        insert into t_ex_blood(exam_date,exam_id,hscrp,creatinine,cholesterol,triglyceride,blood_glucose,
+        bmi,pulse,systolic_bp,diastolic_bp,diabetes,myocardial_infarction,angina_pectoris,stroke,smoker,subjective_health_status,
+        create_id,create_date)
+        values(#{examDate},#{examId},#{hscrp},#{creatinine},#{cholesterol},#{triglyceride},#{bloodGlucose},
+        #{bmi},#{pulse},#{systolicBp},#{diastolicBp},#{diabetes},#{myocardialInfarction},#{anginaPectoris},#{stroke},#{smoker},#{subjectiveHealthStatus},
+        #{createId},#{createDate})
+    </insert>
+
+</mapper>

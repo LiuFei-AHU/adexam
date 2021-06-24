@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>阿尔兹海默症认知症诊断筛查系统</title>
+		<!-- Tell the browser to be responsive to screen width -->
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+		<link rel="shortcut icon" href="./favicon.ico" />
+		<link rel="bookmark" href="./favicon.ico" />
+		<link rel="stylesheet" href="./static/static/bootstrap/css/bootstrap.css">
+		<link rel="stylesheet" href="./static/static/bootstrap/css/bootstrap-table.css">
+		<link rel="stylesheet" href="./static/static/bootstrap/css/bootstrap-datetimepicker.css">
+		<link rel="stylesheet" href="./static/static/bootstrap/css/bootstrap-treeview.min.css">
+
+		<!-- Font Awesome -->
+		<link rel="stylesheet" href="./static/static/css/font-awesome.css">
+		<!-- Ionicons -->
+		<link rel="stylesheet" href="./static/static/css/ionicons.css">
+		<!-- Theme style -->
+		<link rel="stylesheet" href="./static/static/css/AdminLTE.css">
+		<!-- AdminLTE Skins. We have chosen the skin-blue for this starter
+          page. However, you can choose any other skin. Make sure you
+          apply the skin class to the body tag so the changes take effect. -->
+		<link rel="stylesheet" href="./static/static/css/skins/skin-blue.min.css">
+
+		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+		<!-- Google Font -->
+		<!--<link rel="stylesheet"-->
+		<!--href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">-->
+
+	</head>
+	<!--
+BODY TAG OPTIONS:
+=================
+Apply one or more of the following classes to get the
+desired effect
+|---------------------------------------------------------|
+| SKINS         | skin-blue                               |
+|               | skin-black                              |
+|               | skin-purple                             |
+|               | skin-yellow                             |
+|               | skin-red                                |
+|               | skin-green                              |
+|---------------------------------------------------------|
+|LAYOUT OPTIONS | fixed                                   |
+|               | layout-boxed                            |
+|               | layout-top-nav                          |
+|               | sidebar-collapse                        |
+|               | sidebar-mini                            |
+|---------------------------------------------------------|
+-->
+	<body class="hold-transition skin-blue sidebar-mini">
+		<div class="wrapper">
+
+			<!-- Main Header -->
+			<header class="main-header">
+
+				<!-- Logo -->
+				<a href="#" class="logo">
+					<!-- mini logo for sidebar mini 50x50 pixels -->
+					<span class="logo-mini"></span>
+					<!-- logo for regular state and mobile devices -->
+					<span class="logo-lg"><b>Welcome</b> <small th:text="${user.username}"></small> </span>
+				</a>
+
+				<!-- Header Navbar -->
+				<nav class="navbar navbar-static-top" role="navigation">
+					<!-- Sidebar toggle button-->
+					<a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+						<span class="sr-only">Toggle navigation</span>
+					</a>
+					<!-- Navbar Right Menu -->
+					<div class="navbar-custom-menu">
+						<ul class="nav navbar-nav">
+							<!-- <li><a href="#" id="personal_info"><span class="glyphicon glyphicon-user"></span> 个人</a></li> -->
+							<!-- User Account Menu -->
+							<li class="dropdown user user-menu">
+							    <!-- Menu Toggle Button -->
+								<a href="#" id="personal_info" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> 个人</a>
+							    <ul class="dropdown-menu">
+							        <!-- The user img in the menu -->
+							        <li class="user-header">
+							            <img src="./static/static/img/1.png" class="img-circle" alt="User Image">
+							            <p>
+											<b th:text="${user.username}"></b>
+											<b> - </b>
+											<b th:text="${user.groupName}"></b>
+							            </p>
+							        </li>
+							        <!-- Menu Body -->
+							        <!-- Menu Footer-->
+							        <li class="user-footer">
+							            <div class="pull-left">
+							                <a href="#" id="menu-user-changepwd" class="btn btn-default btn-flat">Change Password</a>
+							            </div>
+							            <div class="pull-right">
+							                <a href="/ad/logout" class="btn btn-default btn-flat">Sign out</a>
+							            </div>
+							        </li>
+							    </ul>
+							</li>
+							<li><a href="/ad/logout"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
+						</ul>
+					</div>
+				</nav>
+			</header>
+			<!-- Left side column. contains the logo and sidebar -->
+			<aside class="main-sidebar">
+				<!-- sidebar: style can be found in sidebar.less -->
+				<section class="sidebar">
+
+				<!-- search form (Optional) -->
+				<!-- <form action="#" method="get" class="sidebar-form">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search...">
+                    <span class="input-group-btn">
+					  <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+					  </button>
+					</span>
+                </div>
+            </form> -->
+					<!-- /.search form -->
+					<!-- 左侧菜单栏 -->
+					<!-- Sidebar Menu -->
+					<ul class="sidebar-menu" data-widget="tree">
+						<li class="header"><span class="fa-lg">系统菜单</span></li>
+						<!-- Optionally, you can add icons to the links -->
+						<li class="treeview">
+							<a href="#"><i class="glyphicon glyphicon-edit"></i> <span>认知评测</span>
+								<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+								</span>
+							</a>
+							<ul class="treeview-menu">
+								<li><a href="javascript:void(0)" class="myLeftMenu" data-id="m1"
+										data="exam/add?action=add" id="phy_add"><i
+											class="glyphicon glyphicon-pencil"></i>
+										<span>开始新评测</span></a></li>
+								<li><a href="javascript:void(0)" class="myLeftMenu" data-id="m1" data="home/main"
+										id="phy_main"><i class="glyphicon glyphicon-search"></i> <span>查询评测结果</span></a>
+								</li>
+								<li><a href="javascript:void(0)" class="myLeftMenu" data-id="m1" data="home/download"
+										id="phy_download"><i class="glyphicon glyphicon-download-alt"></i>
+										<span>下载评测表格</span></a></li>
+							</ul>
+						</li>
+
+						<li class="treeview">
+							<a href="#"><i class="glyphicon glyphicon-cog"></i> <span>系统管理</span>
+								<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+								</span>
+							</a>
+							<ul class="treeview-menu">
+								<!-- th:hidden="${user.rolecode=='user'}" -->
+								<li><a href="javascript:void(0)" class="myLeftMenu" data-id="m1" data="user/manage"
+										id="user_manage"><i class="glyphicon glyphicon-user"></i> <span>用户管理</span></a>
+								</li>
+								<li><a href="javascript:void(0)" class="myLeftMenu" data-id="m1" data="user/group"
+										id="work_group_manage"><i class="glyphicon glyphicon-list"></i>
+										<span>工作组管理</span></a></li>
+								<!-- <li><a href="javascript:void(0)" class="myLeftMenu" data-id="m2" data="role/manage" id="role_manage">角色管理</a></li> -->
+							</ul>
+						</li>
+					</ul>
+					<!-- /.sidebar-menu -->
+				</section>
+				<!-- /.sidebar -->
+			</aside>
+
+			<!-- Content Wrapper. Contains page content -->
+			<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<!-- <section class="content-header">
+			<ol class="breadcrumb">
+				<li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+				<li class="active">Here</li>
+			</ol>
+		    </section> -->
+
+				<!-- Main content -->
+				<section class="content container-fluid">
+					<div id="container">
+
+					</div>
+					<!--------------------------
+			  | Your Page Content Here |
+			  -------------------------->
+				</section>
+
+				<!-- /.content -->
+			</div>
+			<!-- /.content-wrapper -->
+
+			<!-- Main Footer -->
+			<footer class="main-footer">
+				<!-- To the right -->
+				<div class="pull-right hidden-xs">
+					Anything you want
+				</div>
+				<!-- Default to the left -->
+				<strong>Copyright &copy; 2021 <a href="#">安徽大学国际脑科学工程研究中心</a>.</strong> All rights reserved.
+			</footer>
+		</div>
+		<!-- ./wrapper -->
+
+		<!-- REQUIRED JS SCRIPTS -->
+		<!-- jQuery 3 -->
+		<script src="./static/static/js/jquery-3.5.1.js" type="text/javascript"></script>
+		<script src="./static/static/js/jquery.treegrid.min.js" type="text/javascript"></script>
+		<!-- Bootstrap 3.3.7 -->
+		<script src="./static/static/bootstrap/js/bootstrap.js" type="text/javascript"></script>
+		<script src="./static/static/bootstrap/js/bootstrapValidator.min.js" type="text/javascript"></script>
+		<!-- AdminLTE App -->
+		<script src="./static/static/js/adminlte.js" type="text/javascript"></script>
+		<script src="./static/static/bootstrap/js/bootstrap-table.js"></script>
+		<script src="./static/static/bootstrap/js/bootstrap-table-zh-CN.js"></script>
+		<script src="./static/static/bootstrap/js/bootstrap-table-treegrid.js"></script>
+		<script src="./static/static/bootstrap/js/bootstrap-tab.js"></script>
+		<script src="./static/static/js/moment.min.js"></script>
+		<script src="./static/static/js/moment-with-locales.js"></script>
+		<script src="./static/static/bootstrap/js/bootstrap-datetimepicker.js"></script>
+		<script src="./static/static/bootstrap/js/bootstrap-treeview.min.js"></script>
+		<script src="./static/static/layer/layer-3.5.1.js"></script>
+
+		<script>
+			
+			//绑定个人信息点击事件
+			// $("#personal_info").click(function(e){
+			// 	layer.msg('show personal info here');
+			// });
+			
+			//修改密码
+			$("#menu-user-changepwd").click(function(e){
+				$.ajax({
+					url: '/ad/user/changepwd',
+					type: "get",
+					contentType: "text/html",
+					success: function(data) {
+						layer.open({
+							type: 1,
+							title: "",
+							content: data
+						});
+					},
+					error: function(data) {
+						console.log(data);
+					}
+				});
+			});
+			
+			//显示欢迎首页
+			$("#container").tabs({
+				data: [{
+					id: 'welcome',
+					text: '欢迎',
+					url: "home/welcome"
+				}],
+				showIndex: 0,
+				loadAll: false
+			});
+			//左侧菜单栏
+			$(function() {
+				$('ul.sidebar-menu li').click(function() {
+					var li = $('ul.sidebar-menu li.active');
+					li.removeClass('active');
+					$(this).addClass('active');
+				});
+
+				$('.myLeftMenu').click(function(e) {
+
+					var url = $(this).attr('data');
+					// var dataid=$(this).attr('data-id');
+					var datatext = $(this).find("span").text();
+					var tabid = $(this).attr('id');
+					console.log(url);
+					console.log(datatext);
+
+					// $('#container').load(url);
+					var $tabContainer = $('#container');
+					var $tabId = $tabContainer.data('tabs').find(datatext);
+
+					if ($tabId.length > 0) {
+						console.log("find:" + $tabId);
+						$tabContainer.data('tabs').showTab(datatext);
+					} else {
+						console.log("no find");
+						$("#container").data("tabs").addTab({
+							id: datatext,
+							text: datatext,
+							closeable: true,
+							url: url
+						});
+					}
+				});
+			});
+			//格式化日期
+			Date.prototype.Format = function(fmt) {
+				var o = {
+					"M+": this.getMonth() + 1, //月份   
+					"d+": this.getDate(), //日   
+					"H+": this.getHours(), //小时   
+					"m+": this.getMinutes(), //分   
+					"s+": this.getSeconds(), //秒   
+					"q+": Math.floor((this.getMonth() + 3) / 3), //季度   
+					"S": this.getMilliseconds() //毫秒   
+				};
+				if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+				for (var k in o)
+					if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) :
+						(("00" + o[k]).substr(("" + o[k]).length)));
+				return fmt;
+			}
+			/*
+			//直接加载内容，不包含窗口的代码
+			// $('#container').load('./welcome.html');
+			// $('.content-header h1').text('welcome');
+			
+			// $(function () {
+			//     $('ul.sidebar-menu li').click(function () {
+			//         var li = $('ul.sidebar-menu li.active');
+			//         li.removeClass('active');
+			//         $(this).addClass('active');
+			//     });
+
+			//     $('.myLeftMenu').click(function (e) {
+			//         var url = $(this).attr('data');
+			// 		console.log(url);
+			// 		var datatext=$(this).text();
+			// 		console.log(datatext);
+			// 		$('#container').load(url);
+			// 		$('.content-header h1').text(datatext);
+			//     });
+			// })
+			*/
+		</script>
+
+		<!-- Optionally, you can add Slimscroll and FastClick plugins.
+		 Both of these plugins are recommended to enhance the
+		 user experience. -->
+	</body>
+</html>
