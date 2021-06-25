@@ -9,5 +9,6 @@ package common;
 public class GitTest {
     public void test(){
         System.out.println("edit in branch ..");
+        System.out.println("print sth. ..");
     }
 }
